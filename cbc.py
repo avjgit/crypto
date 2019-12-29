@@ -81,26 +81,21 @@ def decrypt_cbc(ctxt, key):
         previous_ctxt_block = block
     return unpad(result)
 
-decoded = b''
-# with open('input.txt', 'r') as content_file:
-#     content = content_file.read()
-
 encoded = b''    
 with open("input.txt", "r") as inputFile:
     for line_content in inputFile:
         x = encrypt_cbc(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
         encoded += x        
-        decoded += decrypt_cbc(x, bytes("YELLOW SUBMARINE", "utf-8"))
-decodedString = codecs.decode(decoded)
-# print(codecs.decode(decoded), end='') #print the encrypted text in base 64
 
-with open("encoded.txt", "wb") as out: 
-    out.write(encoded)
+with open("encoded.txt", "wb") as out: out.write(encoded)
 
 decodedFromFile = b''
 with open("encoded.txt", "rb") as inputFile:
     content = inputFile.read()
     decodedFromFile += decrypt_cbc(content, bytes("YELLOW SUBMARINE", "utf-8"))
+
+with open("decoded.txt", "wb") as out: out.write(decodedFromFile)
+
 decodedString = codecs.decode(decodedFromFile)
 print(decodedString, end='') #print the encrypted text in base 64
 

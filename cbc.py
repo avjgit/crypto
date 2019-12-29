@@ -76,14 +76,17 @@ def decrypt_cbc(ctxt, key):
         previous_ctxt_block = block
     return unpad(result)
 
+with open("key.txt", "r") as inputFile:
+    key = bytes(inputFile.read(), "utf-8")
+
 with open("input.txt", "r") as inputFile:
-    encoded = encrypt_cbc(bytes(inputFile.read(), "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
+    encoded = encrypt_cbc(bytes(inputFile.read(), "utf-8"), key)
 
 with open("encoded.txt", "wb") as outputFile: 
     outputFile.write(encoded)
 
 with open("encoded.txt", "rb") as inputFile:
-    decodedFromFile = decrypt_cbc(inputFile.read(), bytes("YELLOW SUBMARINE", "utf-8"))
+    decodedFromFile = decrypt_cbc(inputFile.read(), key)
 
 with open("decoded.txt", "wb") as outputFile: 
     outputFile.write(decodedFromFile)

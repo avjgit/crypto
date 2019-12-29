@@ -1,33 +1,26 @@
 from Crypto.Cipher import AES
 import codecs
 
-def pad(plaintext):
-    # pkcs7
-    padding_len = 16 - (len(plaintext) % 16)
-    # the message length is a multiple of the block size
-    # we add *a whole new block of padding*
-    # (otherwise it would be difficult when removing the padding
-    # to guess the padding length)
-    if padding_len == 0: padding_len = 16
+def pad(data):
+    # Šī funkcija papildina tekstu, lai tas var sadalīties 16 baitu blokos
+    # aizpilda nepieciešamus baitus atbilstoši PKCS7 algoritmam,
+    # kur katrā baitā ieraksta ciparu, kas ir klāt pierakstītu baitu skaits;
+    # tas vēlāk noderēs papildinātu baitu noņemšanai (sk. "unpad" funkciju zemāk),
+    # kas noteiks, cik baitus jānoņem, nolasot ciparu no pēdēja baita
+    # https://en.wikipedia.org/wiki/Padding_(cryptography)#PKCS#5_and_PKCS#7
+    padding_len = 16 - (len(data) % 16)
+
+    # ja papildus baiti nav jāliek, tad jāpieliek vesels bloks :)
+    # tas ir nepieciešams lai visu ziņojumu apstrāde notiktu pēc viena un tā paša algoritma
+    if padding_len == 0: padding_len = 16 
     padding = bytes([padding_len]) * padding_len
-    return plaintext + padding
+    return data + padding
 
 def unpad(data):
     padding_length = data[-1]
     return data[: -padding_length]
 
 def bxor(a, b): return bytes([ x^y for (x,y) in zip(a, b)])
-
-
-# def encrypt_CBC(enc_, key):
-#     nb_blocks = (int)(len(enc) / 16) #calculate the number of blocks I've to iter through
-#     IV = bytearray(16)
-#     cipher = AES.new(key, AES.MODE_ECB)
-#     output = b''
-#     for i in range(nb_blocks):
-#         enc2 = xor_for_char(enc[i * 16:(i + 1) * 16], IV) #xor a block with IV
-#         IV = cipher.encrypt(enc2) # set the the IV based on the encryption of the xored text
-#         output += IV
 
 def encrypt_aes_128_cbc(msg, key):
     result = b''
@@ -36,7 +29,7 @@ def encrypt_aes_128_cbc(msg, key):
     # šī ir bibliotēkas funkcija, kas vienkārši enkriptē bloku
     cipher = AES.new(key, AES.MODE_ECB) 
 
-    previous_ctxt_block = bytearray(16) #initializācijas vektors
+    previous_ctxt_block = bytearray(16) #initializācijas vektors, 16 nulles
     padded_ptxt = pad(msg)
     nb_blocks = (int)(len(padded_ptxt) / 16) #calculate the number of blocks I've to iter through
     for i in range(nb_blocks):

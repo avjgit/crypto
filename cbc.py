@@ -134,5 +134,6 @@ def decryptFromFile(encryptedFilename, keyFilename):
     # uzreiz izdrukā arī ekrānā ērtākai pārbaudei
     print("Atšifrēja: " + codecs.decode(decrypted))
 
-# encryptFromFile(INPUT_FILE, KEY_FILE)
-# decryptFromFile(ENCRYPTED_CBC_FILE, KEY_FILE)
+if __name__ == "__main__":
+    encryptFromFile(INPUT_FILE, KEY_FILE)
+    decryptFromFile(ENCRYPTED_CBC_FILE, KEY_FILE)

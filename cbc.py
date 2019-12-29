@@ -2,11 +2,6 @@ from Crypto.Cipher import AES
 from math import ceil
 import codecs
 
-
-# "The result of decrypted should be saved in binary format."
-# un
-# "Naturally, decrypting an encrypted string should give back the clear text. "
-
 BLOCK_SIZE = 16 #šifrēs 16 baitu blokos
 
 def pad(data):
@@ -81,25 +76,15 @@ def decrypt_cbc(ctxt, key):
         previous_ctxt_block = block
     return unpad(result)
 
-encoded = b''    
 with open("input.txt", "r") as inputFile:
-    for line_content in inputFile:
-        x = encrypt_cbc(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
-        encoded += x        
+    content = inputFile.read()
+    encoded = encrypt_cbc(bytes(content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
 
 with open("encoded.txt", "wb") as out: out.write(encoded)
 
-decodedFromFile = b''
 with open("encoded.txt", "rb") as inputFile:
     content = inputFile.read()
-    decodedFromFile += decrypt_cbc(content, bytes("YELLOW SUBMARINE", "utf-8"))
+    decodedFromFile = decrypt_cbc(content, bytes("YELLOW SUBMARINE", "utf-8"))
 
 with open("decoded.txt", "wb") as out: out.write(decodedFromFile)
-
-decodedString = codecs.decode(decodedFromFile)
-print(decodedString, end='') #print the encrypted text in base 64
-
-
-
-
-with open("output.txt", "w") as out: out.write(decodedString)
+print("Atšifrēja: " + codecs.decode(decodedFromFile))

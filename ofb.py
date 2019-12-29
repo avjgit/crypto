@@ -4,12 +4,23 @@ import codecs
 
 # izmantoju funkcijas no iepriekšēja mājas darba daļas - faila cbc.py
 # to importējot, tas izpildīsies un izdrukās "Atšifrēja: " ar CBC piemēru 
-# lai to novērst var cbc.py pēdējas divas rindiņas aizkomentēt
-# vai pirms viņām ierakstīt `if __name__ == "__main__":`
+# tam nav jāpieverš uzmanība; OFB piemērs drukās "Atšifrēja OFB: "
+# bet tīrībai var to arī novērst, cbc.py pēdējas divas rindiņas aizkomentējot
+# vai pirms viņām ierakstot `if __name__ == "__main__":`
 # laboto failu nesūtu, lai nebūtu sajaukumu
 from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
 
-def ofbEnc(plainText, key):
+# Priekšnoteikumi: Python (sk. CBC.py sīkāk)
+# Kā izmantot: līdzīgi kā iepriekšējā CBC.py, 
+# šajā OFB.py beigās ir divi funkciju izsaukumi - encrypt, decrypt
+# var lietot kopā, var atsevišķi.
+# Atšķirībā no CBC, šeit vienkāršoju un saīsināju kodu,
+# izņēmu, droši vien, nevajadzīgo konstantes
+# un to vietā padodot hardkodētus failu nosaukumus;
+# arī mazāk funkciju - saglabāšanu failos ieliku algoritmu funkcijās
+# Beigu rezultāts - divas funkcijas (encrypt, decrypt) un viņu izsaukumi
+
+def encrypt_ofb(plainText, key):
     cipherTextChunks = []
     iv = get_random_bytes(16)
     originalIV = iv
@@ -27,7 +38,7 @@ def ofbEnc(plainText, key):
     write("encrypted_ofb.txt", b''.join(cipherTextChunks))
     write("if_ofb.txt", originalIV)
 
-def ofbDec(cyphertext, key, iv):
+def decrypt_ofb(cyphertext, key, iv):
     plainText = b""
     cipher = AES.new(key, AES.MODE_ECB)
     blocks = split_to_blocks(cyphertext)
@@ -39,11 +50,11 @@ def ofbDec(cyphertext, key, iv):
     write("decrypted_ofb.txt", decrypted)
     print("Atšifrēja OFB: " + codecs.decode(decrypted))
 
-ofbEnc(
-    plainText=read("input.txt", "r"), 
-    key=getKey("key.txt"))
+encrypt_ofb(
+    plainText = read("input.txt", "r"), 
+    key = getKey("key.txt"))
 
-ofbDec(
+decrypt_ofb(
     cyphertext = read("encrypted_ofb.txt", "rb"), 
     key = getKey("key.txt"), 
     iv = read("if_ofb.txt", "rb"))

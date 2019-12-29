@@ -7,7 +7,7 @@ import codecs
 # īstais OFB atšifrējums sāksies ar "Atšifrēja OFB: "
 # (skaidrībai var aizkomentēt cbc.py pēdējas divas rindiņas failā)
 
-from cbc import read, write, getKey, pad, unpad, split_to_blocks
+from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
 
 def ofbEnc(plainText, key):
     pos = 0
@@ -16,15 +16,15 @@ def ofbEnc(plainText, key):
     originalIV = iv
     cipher = AES.new(key, AES.MODE_ECB)
     plainText = pad(plainText)
+    blocks = split_to_blocks(plainText)
 
-    while pos + 16 <= len(plainText):
+    for block in blocks:
         toXor = cipher.encrypt(iv)
-        nextPos = pos + 16
-        toEnc = plainText[pos:nextPos]
-        cipherText = bytes([toXor[i] ^ toEnc[i] for i in range(16)])
+        toEnc = block
+        cipherText = xor(toXor, toEnc)
         cipherTextChunks.append(cipherText)
-        pos += 16
         iv = toXor
+
     return (originalIV, cipherTextChunks)
 
 def ofbDec(cipherTextChunks, key, iv):
@@ -33,7 +33,7 @@ def ofbDec(cipherTextChunks, key, iv):
     blocks = split_to_blocks(cipherTextChunks)
     for chunk in blocks:
         toXor = cipher.encrypt(iv)
-        plainText += bytes([toXor[i] ^ chunk[i] for i in range(15)])
+        plainText += xor(toXor, chunk)
         iv = toXor
 
     return unpad(plainText)

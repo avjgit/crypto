@@ -83,9 +83,12 @@ def decrypt_aes_128_cbc(ctxt, key):
         previous_ctxt_block = block
     return pkcs7_strip(result)
 
+
 with open("input.txt", "r") as inputFile:
-    for line_content in inputFile:
-        # encrypt_CBC(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
-        x = encrypt_aes_128_cbc(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
-        de = decrypt_aes_128_cbc(x, bytes("YELLOW SUBMARINE", "utf-8"))
-        print(codecs.decode(de), end='') #print the encrypted text in base 64
+    with open("output.txt", "w") as outputFile:
+        for line_content in inputFile:
+            # encrypt_CBC(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
+            x = encrypt_aes_128_cbc(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
+            de = decrypt_aes_128_cbc(x, bytes("YELLOW SUBMARINE", "utf-8"))
+            print(codecs.decode(de), end='') #print the encrypted text in base 64
+            outputFile.write(codecs.decode(de))

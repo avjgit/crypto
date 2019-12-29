@@ -9,9 +9,6 @@ import codecs
 
 from cbc import read, write, getKey, split_to_blocks
 
-plainText = read("input.txt", "r")
-key = getKey("key.txt")
-
 def ofbEnc(plainText, key):
     pos = 0
     cipherTextChunks = []
@@ -47,8 +44,6 @@ def ofbDec(cipherTextChunks, key, iv):
     if plainText[-1] == 49:
         plainText = plainText[0:-1]
     return plainText
-
-iv, result = ofbEnc(plainText, key)
 
 def encryptFromFile(inputFilename, keyFilename):
     plainText = read(inputFilename, "r")

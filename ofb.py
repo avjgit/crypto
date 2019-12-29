@@ -10,7 +10,6 @@ import codecs
 from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
 
 def ofbEnc(plainText, key):
-    pos = 0
     cipherTextChunks = []
     iv = get_random_bytes(16)
     originalIV = iv
@@ -25,32 +24,27 @@ def ofbEnc(plainText, key):
         cipherTextChunks.append(cipherText)
         iv = toXor
 
-    return (originalIV, b''.join(cipherTextChunks))
+    write("encrypted_ofb.txt", b''.join(cipherTextChunks))
+    write("if_ofb.txt", originalIV)
 
-def ofbDec(cipherTextChunks, key, iv):
+def ofbDec(cyphertext, key, iv):
     plainText = b""
     cipher = AES.new(key, AES.MODE_ECB)
-    blocks = split_to_blocks(cipherTextChunks)
+    blocks = split_to_blocks(cyphertext)
     for chunk in blocks:
         toXor = cipher.encrypt(iv)
         plainText += xor(toXor, chunk)
         iv = toXor
-    return unpad(plainText)
-
-def encryptFromFileOFB():
-    plainText = read("input.txt", "r")
-    key = getKey("key.txt")
-    iv, encrypted = ofbEnc(plainText, key)
-    write("encrypted_ofb.txt", encrypted)
-    write("if_ofb.txt", iv)
-
-def decryptFromFileOFB():
-    cyphertext = read("encrypted_ofb.txt", "rb")
-    key = getKey("key.txt")
-    iv = read("if_ofb.txt", "rb")
-    decrypted = ofbDec(cyphertext, key, iv)
+    decrypted = unpad(plainText)
     write("decrypted_ofb.txt", decrypted)
     print("Atšifrēja OFB: " + codecs.decode(decrypted))
 
-encryptFromFileOFB()
-decryptFromFileOFB()
+
+ofbEnc(
+    plainText=read("input.txt", "r"), 
+    key=getKey("key.txt"))
+
+ofbDec(
+    cyphertext = read("encrypted_ofb.txt", "rb"), 
+    key = getKey("key.txt"), 
+    iv = read("if_ofb.txt", "rb"))

@@ -17,19 +17,7 @@ def pkcs7_strip(data):
     padding_length = data[-1]
     return data[:- padding_length]
 
-# def xor_for_char(input_bytes, key_input):
-#     index = 0
-#     output_bytes = b''
-#     for byte in input_bytes:
-#         if index >= len(key_input):
-#             index = 0
-#         output_bytes += bytes([byte ^ key_input[index]])
-#         index += 1
-#     return output_bytes
-
-def bxor(a, b):
-    "bitwise XOR of bytestrings"
-    return bytes([ x^y for (x,y) in zip(a, b)])
+def bxor(a, b): return bytes([ x^y for (x,y) in zip(a, b)])
 
 
 # def encrypt_CBC(enc_, key):
@@ -71,12 +59,13 @@ def decrypt_aes_128_cbc(ctxt, key):
         previous_ctxt_block = block
     return pkcs7_strip(result)
 
-
+decoded = b''
 with open("input.txt", "r") as inputFile:
-    with open("output.txt", "w") as outputFile:
         for line_content in inputFile:
             # encrypt_CBC(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
             x = encrypt_aes_128_cbc(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
-            de = decrypt_aes_128_cbc(x, bytes("YELLOW SUBMARINE", "utf-8"))
-            print(codecs.decode(de), end='') #print the encrypted text in base 64
-            outputFile.write(codecs.decode(de))
+            decoded += decrypt_aes_128_cbc(x, bytes("YELLOW SUBMARINE", "utf-8"))
+decodedString = codecs.decode(decoded)
+print(codecs.decode(decoded), end='') #print the encrypted text in base 64
+
+with open("output.txt", "w") as out: out.write(decodedString)

@@ -25,7 +25,7 @@ def ofbEnc(plainText, key):
         cipherTextChunks.append(cipherText)
         iv = toXor
 
-    return (originalIV, cipherTextChunks)
+    return (originalIV, b''.join(cipherTextChunks))
 
 def ofbDec(cipherTextChunks, key, iv):
     plainText = b""
@@ -35,14 +35,12 @@ def ofbDec(cipherTextChunks, key, iv):
         toXor = cipher.encrypt(iv)
         plainText += xor(toXor, chunk)
         iv = toXor
-
     return unpad(plainText)
 
 def encryptFromFileOFB():
     plainText = read("input.txt", "r")
     key = getKey("key.txt")
     iv, encrypted = ofbEnc(plainText, key)
-    encrypted = b''.join(encrypted)
     write("encrypted_ofb.txt", encrypted)
     write("if_ofb.txt", iv)
 

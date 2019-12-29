@@ -36,7 +36,7 @@ def encrypt_ofb(plainText, key):
         iv = toXor
 
     write("encrypted_ofb.txt", b''.join(cipherTextChunks))
-    write("if_ofb.txt", originalIV)
+    write("iv_ofb.txt", originalIV)
 
 def decrypt_ofb(cyphertext, key, iv):
     plainText = b""
@@ -57,4 +57,4 @@ encrypt_ofb(
 decrypt_ofb(
     cyphertext = read("encrypted_ofb.txt", "rb"), 
     key = getKey("key.txt"), 
-    iv = read("if_ofb.txt", "rb"))
+    iv = read("iv_ofb.txt", "rb"))

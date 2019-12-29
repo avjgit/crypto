@@ -59,7 +59,7 @@ def read(filename, mode):
     # ja tas bija teksts, tad to konvertēt baitos
     return content if mode == "rb" else bytes(content, "utf-8")
 
-def encrypt_cbc(msg, key):
+def encrypt_cbc(plaintext, key):
     result = b''
 
     # atbilstoši atļaujai uzdevumā, "you may only use a function that takes one block as input, performs regular encryption, and returns the encrypted block"
@@ -67,7 +67,7 @@ def encrypt_cbc(msg, key):
     cipher = AES.new(key, AES.MODE_ECB) 
 
     previous_ctxt_block = bytearray(BLOCK_SIZE) #initializācijas vektors, BLOCK_SIZE nulles
-    padded_ptxt = pad(msg)
+    padded_ptxt = pad(plaintext)
     blocks = split_to_blocks(padded_ptxt) #calculate the number of blocks I've to iter through
     for block in blocks:
         to_encrypt = xor(block, previous_ctxt_block) #xor a block with IV
@@ -76,11 +76,11 @@ def encrypt_cbc(msg, key):
         previous_ctxt_block = new_ctxt_block
     return result
 
-def decrypt_cbc(ctxt, key):
+def decrypt_cbc(cyphertext, key):
     result = b''
     previous_ctxt_block = bytearray(BLOCK_SIZE)
     cipher = AES.new(key, AES.MODE_ECB)
-    blocks = split_to_blocks(ctxt)
+    blocks = split_to_blocks(cyphertext)
     for block in blocks:
         to_xor = cipher.decrypt(block)
         result += xor(to_xor, previous_ctxt_block)
@@ -92,16 +92,17 @@ def decrypt_cbc(ctxt, key):
 #
 #
 
-key = read("key.txt", "r")
+key = read("key.txt", "r") #ielasa atslēgu
 
+# ielasa tekstu šifrēšanai, to iešifrē un ieraksta failā
 plainText = read("input.txt", "r")
-
 encoded = encrypt_cbc(plainText, key)
-
 write("encoded.txt", encoded)
 
-decodedFromFile = decrypt_cbc(read("encoded.txt", "rb"), key)
-
+# ielasa šifrēto ziņu, to atšifrē un ieraksta failā
+cyphertext = read("encoded.txt", "rb")
+decodedFromFile = decrypt_cbc(cyphertext, key)
 write("decoded.txt", decodedFromFile)
 
+# uzreiz izdrukā arī ekrānā ērtākai pārbaudei
 print("Atšifrēja: " + codecs.decode(decodedFromFile))

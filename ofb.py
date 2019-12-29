@@ -2,13 +2,10 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import codecs
 
-# izmantoju funkcijas no iepriekšēja mājas darba daļas - faila cbc; 
-# ir viens mīnuss - importējot cbc tas izpildīsies
-# un izdrukās "Atšifrēja: "
-# bet tam nav jāpieverš uzmanība
-# īstais OFB atšifrējums sāksies ar "Atšifrēja OFB: "
-# (var cbc.py pēdējas divas rindiņas vienkārši aizkomentēt
-# vai, pitoniski pareizāk, pirms viņām ierakstīt `if __name__ == "__main__":`)
+# izmantoju funkcijas no iepriekšēja mājas darba daļas - faila cbc.py
+# to importējot, tas izpildīsies un izdrukās "Atšifrēja: " ar CBC piemēru 
+# lai to novērst var cbc.py pēdējas divas rindiņas aizkomentēt
+# vai pirms viņām ierakstīt `if __name__ == "__main__":`
 # laboto failu nesūtu, lai nebūtu sajaukumu
 from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
 

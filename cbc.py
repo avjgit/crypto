@@ -48,6 +48,10 @@ def split_to_blocks(bytestring):
     # un atgriezīs masīvu ar šiem blokiem
     return [bytestring[BLOCK_SIZE*i : BLOCK_SIZE*(i+1)] for i in block_numbers]
 
+def writeToFile(filename, content):
+    with open(filename, "wb") as outputFile: # saglabā binārajā režīmā ("wb")
+        outputFile.write(content)
+
 def encrypt_cbc(msg, key):
     result = b''
 
@@ -82,13 +86,11 @@ with open("key.txt", "r") as inputFile:
 with open("input.txt", "r") as inputFile:
     encoded = encrypt_cbc(bytes(inputFile.read(), "utf-8"), key)
 
-with open("encoded.txt", "wb") as outputFile: 
-    outputFile.write(encoded)
+writeToFile("encoded.txt", encoded)
 
 with open("encoded.txt", "rb") as inputFile:
     decodedFromFile = decrypt_cbc(inputFile.read(), key)
 
-with open("decoded.txt", "wb") as outputFile: 
-    outputFile.write(decodedFromFile)
+writeToFile("decoded.txt", decodedFromFile)
 
 print("Atšifrēja: " + codecs.decode(decodedFromFile))

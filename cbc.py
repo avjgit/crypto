@@ -49,6 +49,8 @@ def split_to_blocks(bytestring):
     return [bytestring[BLOCK_SIZE*i : BLOCK_SIZE*(i+1)] for i in block_numbers]
 
 def write(filename, content):
+    # palīgfunkcijas lasīšanai no/ rakstīšanai failos,
+    # lai "nepiesairņotu" algoritma kodu zemāk
     with open(filename, "wb") as outputFile: # saglabā binārajā režīmā ("wb")
         outputFile.write(content)
 
@@ -60,49 +62,47 @@ def read(filename, mode):
     return content if mode == "rb" else bytes(content, "utf-8")
 
 def encrypt_cbc(plaintext, key):
-    result = b''
-
-    # atbilstoši atļaujai uzdevumā, "you may only use a function that takes one block as input, performs regular encryption, and returns the encrypted block"
-    # šī ir bibliotēkas funkcija, kas vienkārši enkriptē bloku
+    # atbilstoši atļaujai uzdevumā, "you may use a function that takes one block as input, performs regular encryption, and returns the encrypted block"
+    # šī ir bibliotēkas funkcija, kas vienkārši enkriptē vienu bloku (ECB režīmā)
     cipher = AES.new(key, AES.MODE_ECB) 
 
-    previous_ctxt_block = bytearray(BLOCK_SIZE) #initializācijas vektors, BLOCK_SIZE nulles
-    padded_ptxt = pad(plaintext)
-    blocks = split_to_blocks(padded_ptxt) #calculate the number of blocks I've to iter through
+    encrypted = b''
+    prev_block = bytearray(BLOCK_SIZE) #initializācijas vektors, BLOCK_SIZE nulles
+    plaintext_padded = pad(plaintext)
+    blocks = split_to_blocks(plaintext_padded) 
     for block in blocks:
-        to_encrypt = xor(block, previous_ctxt_block) #xor a block with IV
-        new_ctxt_block = cipher.encrypt(to_encrypt)
-        result += new_ctxt_block
-        previous_ctxt_block = new_ctxt_block
-    return result
+        to_encrypt = xor(block, prev_block) #xor a block with IV
+        next_block = cipher.encrypt(to_encrypt)
+        encrypted += next_block
+        prev_block = next_block
+    return encrypted
 
 def decrypt_cbc(cyphertext, key):
+    cipher = AES.new(key, AES.MODE_ECB) 
     result = b''
-    previous_ctxt_block = bytearray(BLOCK_SIZE)
-    cipher = AES.new(key, AES.MODE_ECB)
+    prev_block = bytearray(BLOCK_SIZE)
     blocks = split_to_blocks(cyphertext)
     for block in blocks:
         to_xor = cipher.decrypt(block)
-        result += xor(to_xor, previous_ctxt_block)
-        previous_ctxt_block = block
+        result += xor(to_xor, prev_block)
+        prev_block = block
     return unpad(result)
 
+def encryptFromFile():
+    # ielasa tekstu šifrēšanai, to iešifrē un ieraksta failā
+    plainText = read("input.txt", "r")
+    key = read("key.txt", "r") #ielasa atslēgu
+    encrypted = encrypt_cbc(plainText, key)
+    write("encrypted.txt", encrypted)
 
-#
-#
-#
+def decryptFromFile():
+    # ielasa šifrēto ziņu, to atšifrē un ieraksta failā
+    cyphertext = read("encrypted.txt", "rb")
+    key = read("key.txt", "r") #ielasa atslēgu
+    decrypted = decrypt_cbc(cyphertext, key)
+    write("decrypted.txt", decrypted)
+    # uzreiz izdrukā arī ekrānā ērtākai pārbaudei
+    print("Atšifrēja: " + codecs.decode(decrypted))
 
-key = read("key.txt", "r") #ielasa atslēgu
-
-# ielasa tekstu šifrēšanai, to iešifrē un ieraksta failā
-plainText = read("input.txt", "r")
-encoded = encrypt_cbc(plainText, key)
-write("encoded.txt", encoded)
-
-# ielasa šifrēto ziņu, to atšifrē un ieraksta failā
-cyphertext = read("encoded.txt", "rb")
-decodedFromFile = decrypt_cbc(cyphertext, key)
-write("decoded.txt", decodedFromFile)
-
-# uzreiz izdrukā arī ekrānā ērtākai pārbaudei
-print("Atšifrēja: " + codecs.decode(decodedFromFile))
+encryptFromFile()
+decryptFromFile()

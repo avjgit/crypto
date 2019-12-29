@@ -1,18 +1,20 @@
 from Crypto.Cipher import AES
 import codecs
 
+BLOCK_SIZE = 16
+
 def pad(data):
-    # Šī funkcija papildina tekstu, lai tas var sadalīties 16 baitu blokos
+    # Šī funkcija papildina tekstu, lai tas var sadalīties BLOCK_SIZE baitu blokos
     # aizpilda nepieciešamus baitus atbilstoši PKCS7 algoritmam,
     # kur katrā baitā ieraksta ciparu, kas ir klāt pierakstītu baitu skaits;
     # tas vēlāk noderēs papildinātu baitu noņemšanai (sk. "unpad" funkciju zemāk),
     # kas noteiks, cik baitus jānoņem, nolasot ciparu no pēdēja baita
     # https://en.wikipedia.org/wiki/Padding_(cryptography)#PKCS#5_and_PKCS#7
-    padding_len = 16 - (len(data) % 16)
+    padding_len = BLOCK_SIZE - (len(data) % BLOCK_SIZE)
 
     # ja papildus baiti nav jāliek, tad jāpieliek vesels bloks :)
     # tas ir nepieciešams lai visu ziņojumu apstrāde notiktu pēc viena un tā paša algoritma
-    if padding_len == 0: padding_len = 16 
+    if padding_len == 0: padding_len = BLOCK_SIZE 
     padding = bytes([padding_len]) * padding_len
     return data + padding
 
@@ -29,11 +31,11 @@ def encrypt_aes_128_cbc(msg, key):
     # šī ir bibliotēkas funkcija, kas vienkārši enkriptē bloku
     cipher = AES.new(key, AES.MODE_ECB) 
 
-    previous_ctxt_block = bytearray(16) #initializācijas vektors, 16 nulles
+    previous_ctxt_block = bytearray(BLOCK_SIZE) #initializācijas vektors, BLOCK_SIZE nulles
     padded_ptxt = pad(msg)
-    nb_blocks = (int)(len(padded_ptxt) / 16) #calculate the number of blocks I've to iter through
+    nb_blocks = (int)(len(padded_ptxt) / BLOCK_SIZE) #calculate the number of blocks I've to iter through
     for i in range(nb_blocks):
-        to_encrypt = bxor(padded_ptxt[i * 16:(i + 1) * 16], previous_ctxt_block) #xor a block with IV
+        to_encrypt = bxor(padded_ptxt[i * BLOCK_SIZE:(i + 1) * BLOCK_SIZE], previous_ctxt_block) #xor a block with IV
         new_ctxt_block = cipher.encrypt(to_encrypt)
         result += new_ctxt_block
         previous_ctxt_block = new_ctxt_block
@@ -41,11 +43,11 @@ def encrypt_aes_128_cbc(msg, key):
 
 def decrypt_aes_128_cbc(ctxt, key):
     result = b''
-    previous_ctxt_block = bytearray(16)
-    blocks = (int)(len(ctxt) / 16) #calculate the number of blocks I've to iter through
+    previous_ctxt_block = bytearray(BLOCK_SIZE)
+    blocks = (int)(len(ctxt) / BLOCK_SIZE) #calculate the number of blocks I've to iter through
     cipher = AES.new(key, AES.MODE_ECB)
     for i in range(blocks):
-        block = ctxt[i * 16:(i + 1) * 16]
+        block = ctxt[i * BLOCK_SIZE:(i + 1) * BLOCK_SIZE]
         to_xor = cipher.decrypt(block)
         result += bxor(to_xor, previous_ctxt_block)
         previous_ctxt_block = block

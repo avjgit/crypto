@@ -3,6 +3,10 @@ from math import ceil
 import codecs
 
 BLOCK_SIZE = 16 #šifrēs 16 baitu blokos
+INPUT_FILE = "input.txt" # fails ar tekstu iešifrēšanai
+KEY_FILE = "key.txt" # fails ar atslēgu
+ENCRYPTED_FILE = "encrypted_cbc.txt" # fails ar iešifrētu ziņu
+DECRYPTED_FILE = "decrypted_cbc.txt" # fails ar dešifrētu ziņu
 
 def pad(data):
     # Šī funkcija papildina tekstu, lai tas var sadalīties BLOCK_SIZE baitu blokos
@@ -88,21 +92,21 @@ def decrypt_cbc(cyphertext, key):
         prev_block = block
     return unpad(result)
 
-def encryptFromFile():
+def encryptFromFile(inputFilename, keyFilename):
     # ielasa tekstu šifrēšanai, to iešifrē un ieraksta failā
-    plainText = read("input.txt", "r")
-    key = read("key.txt", "r") #ielasa atslēgu
+    plainText = read(inputFilename, "r")
+    key = read(keyFilename, "r") #ielasa atslēgu
     encrypted = encrypt_cbc(plainText, key)
-    write("encrypted.txt", encrypted)
+    write(ENCRYPTED_FILE, encrypted)
 
-def decryptFromFile():
+def decryptFromFile(encryptedFilename, keyFilename):
     # ielasa šifrēto ziņu, to atšifrē un ieraksta failā
-    cyphertext = read("encrypted.txt", "rb")
-    key = read("key.txt", "r") #ielasa atslēgu
+    cyphertext = read(encryptedFilename, "rb")
+    key = read(keyFilename, "r") #ielasa atslēgu
     decrypted = decrypt_cbc(cyphertext, key)
-    write("decrypted.txt", decrypted)
+    write(DECRYPTED_FILE, decrypted)
     # uzreiz izdrukā arī ekrānā ērtākai pārbaudei
     print("Atšifrēja: " + codecs.decode(decrypted))
 
-encryptFromFile()
-decryptFromFile()
+encryptFromFile(INPUT_FILE, KEY_FILE)
+decryptFromFile(ENCRYPTED_FILE, KEY_FILE)

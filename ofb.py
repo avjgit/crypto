@@ -1,7 +1,12 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 import codecs
-# todo: move here 
+# izmantoju funkcijas no iepriekšēja mājas darba daļas - faila cbc; 
+# ir viens mīnuss - tas, importējot, izpildīsies; izpildīs savu CBC piemēru
+# un izdrukās "Atšifrēja: " - tam nav jāpieverš uzmanība
+# īstais OFB atšifrējums sāksies ar "Atšifrēja OFB: "
+# (skaidrībai var aizkomentēt cbc.py pēdējas divas rindiņas failā)
+
 from cbc import read, write, getKey, split_to_blocks
 
 plainText = read("input.txt", "r")
@@ -63,6 +68,3 @@ def decryptFromFile(encryptedFilename, keyFilename):
 
 encryptFromFile("input.txt", "key.txt")
 decryptFromFile("encrypted_ofb.txt", "key.txt")
-
-# plain = ofbDec(result, key, iv)
-# print("Atšifrēja OFB: " + codecs.decode(plain))

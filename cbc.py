@@ -92,10 +92,19 @@ with open("input.txt", "r") as inputFile:
         encoded += x        
         decoded += decrypt_cbc(x, bytes("YELLOW SUBMARINE", "utf-8"))
 decodedString = codecs.decode(decoded)
-print(codecs.decode(decoded), end='') #print the encrypted text in base 64
+# print(codecs.decode(decoded), end='') #print the encrypted text in base 64
+
+with open("encoded.txt", "wb") as out: 
+    out.write(encoded)
+
+decodedFromFile = b''
+with open("encoded.txt", "rb") as inputFile:
+    content = inputFile.read()
+    decodedFromFile += decrypt_cbc(content, bytes("YELLOW SUBMARINE", "utf-8"))
+decodedString = codecs.decode(decodedFromFile)
+print(decodedString, end='') #print the encrypted text in base 64
 
 
 
-with open("encoded.txt", "w") as out: out.write(codecs.decode(codecs.encode(encoded, 'base64')))
 
 with open("output.txt", "w") as out: out.write(decodedString)

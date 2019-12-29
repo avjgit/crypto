@@ -71,8 +71,8 @@ def split_to_blocks(bytestring):
     return [bytestring[BLOCK_SIZE*i : BLOCK_SIZE*(i+1)] for i in block_numbers]
 
 def getKey(keyFilename):
-    key = read(keyFilename, "r") #ielasa atslēgu
-    return pad(key)
+    key = read(keyFilename, "r") # ielasa atslēgu
+    return pad(key[:BLOCK_SIZE]) # izmanto atslēgu vinādā garuma ar bloku 
 
 def write(filename, content):
     # palīgfunkcijas lasīšanai no/ rakstīšanai failos,

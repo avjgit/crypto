@@ -38,21 +38,21 @@ def ofbDec(cipherTextChunks, key, iv):
 
     return unpad(plainText)
 
-def encryptFromFileOFB(inputFilename, keyFilename):
-    plainText = read(inputFilename, "r")
-    key = getKey(keyFilename)
+def encryptFromFileOFB():
+    plainText = read("input.txt", "r")
+    key = getKey("key.txt")
     iv, encrypted = ofbEnc(plainText, key)
     encrypted = b''.join(encrypted)
     write("encrypted_ofb.txt", encrypted)
     write("if_ofb.txt", iv)
 
-def decryptFromFileOFB(encryptedFilename, keyFilename):
-    cyphertext = read(encryptedFilename, "rb")
-    key = getKey(keyFilename)
+def decryptFromFileOFB():
+    cyphertext = read("encrypted_ofb.txt", "rb")
+    key = getKey("key.txt")
     iv = read("if_ofb.txt", "rb")
     decrypted = ofbDec(cyphertext, key, iv)
     write("decrypted_ofb.txt", decrypted)
     print("Atšifrēja OFB: " + codecs.decode(decrypted))
 
-encryptFromFileOFB("input.txt", "key.txt")
-decryptFromFileOFB("encrypted_ofb.txt", "key.txt")
+encryptFromFileOFB()
+decryptFromFileOFB()

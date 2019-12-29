@@ -48,14 +48,16 @@ def split_to_blocks(bytestring):
     # un atgriezīs masīvu ar šiem blokiem
     return [bytestring[BLOCK_SIZE*i : BLOCK_SIZE*(i+1)] for i in block_numbers]
 
-def writeToFile(filename, content):
+def write(filename, content):
     with open(filename, "wb") as outputFile: # saglabā binārajā režīmā ("wb")
         outputFile.write(content)
 
-def readFromFile(filename, mode):
+def read(filename, mode):
     with open(filename, mode) as inputFile:
         content = inputFile.read()
-    return content
+    # ja ielasīts jau baitu režīmā, tad vnk to atgriezt; 
+    # ja tas bija teksts, tad to konvertēt baitos
+    return content if mode == "rb" else bytes(content, "utf-8")
 
 def encrypt_cbc(msg, key):
     result = b''
@@ -85,19 +87,21 @@ def decrypt_cbc(ctxt, key):
         previous_ctxt_block = block
     return unpad(result)
 
-content = readFromFile("key.txt", "r")
-key = bytes(content, "utf-8")
 
-content = readFromFile("input.txt", "r")
-plainTextToEncode = bytes(content, "utf-8")
+#
+#
+#
 
-encoded = encrypt_cbc(plainTextToEncode, key)
+key = read("key.txt", "r")
 
-writeToFile("encoded.txt", encoded)
+plainText = read("input.txt", "r")
 
-content = readFromFile("encoded.txt", "rb")
-decodedFromFile = decrypt_cbc(content, key)
+encoded = encrypt_cbc(plainText, key)
 
-writeToFile("decoded.txt", decodedFromFile)
+write("encoded.txt", encoded)
+
+decodedFromFile = decrypt_cbc(read("encoded.txt", "rb"), key)
+
+write("decoded.txt", decodedFromFile)
 
 print("Atšifrēja: " + codecs.decode(decodedFromFile))

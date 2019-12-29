@@ -2,6 +2,11 @@ from Crypto.Cipher import AES
 from math import ceil
 import codecs
 
+
+# "The result of decrypted should be saved in binary format."
+# un
+# "Naturally, decrypting an encrypted string should give back the clear text. "
+
 BLOCK_SIZE = 16 #šifrēs 16 baitu blokos
 
 def pad(data):
@@ -48,10 +53,10 @@ def split_to_blocks(bytestring):
     # un atgriezīs masīvu ar šiem blokiem
     return [bytestring[BLOCK_SIZE*i : BLOCK_SIZE*(i+1)] for i in block_numbers]
 
-def encrypt_aes_128_cbc(msg, key):
+def encrypt_cbc(msg, key):
     result = b''
 
-    # atbilstoši atļaujai uzdevumā, "use block ciphers from an external library"
+    # atbilstoši atļaujai uzdevumā, "you may only use a function that takes one block as input, performs regular encryption, and returns the encrypted block"
     # šī ir bibliotēkas funkcija, kas vienkārši enkriptē bloku
     cipher = AES.new(key, AES.MODE_ECB) 
 
@@ -65,7 +70,7 @@ def encrypt_aes_128_cbc(msg, key):
         previous_ctxt_block = new_ctxt_block
     return result
 
-def decrypt_aes_128_cbc(ctxt, key):
+def decrypt_cbc(ctxt, key):
     result = b''
     previous_ctxt_block = bytearray(BLOCK_SIZE)
     cipher = AES.new(key, AES.MODE_ECB)
@@ -77,12 +82,20 @@ def decrypt_aes_128_cbc(ctxt, key):
     return unpad(result)
 
 decoded = b''
+# with open('input.txt', 'r') as content_file:
+#     content = content_file.read()
+
+encoded = b''    
 with open("input.txt", "r") as inputFile:
     for line_content in inputFile:
-        # encrypt_CBC(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
-        x = encrypt_aes_128_cbc(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
-        decoded += decrypt_aes_128_cbc(x, bytes("YELLOW SUBMARINE", "utf-8"))
+        x = encrypt_cbc(bytes(line_content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
+        encoded += x        
+        decoded += decrypt_cbc(x, bytes("YELLOW SUBMARINE", "utf-8"))
 decodedString = codecs.decode(decoded)
 print(codecs.decode(decoded), end='') #print the encrypted text in base 64
+
+
+
+with open("encoded.txt", "w") as out: out.write(codecs.decode(codecs.encode(encoded, 'base64')))
 
 with open("output.txt", "w") as out: out.write(decodedString)

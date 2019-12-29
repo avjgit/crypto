@@ -72,7 +72,7 @@ def split_to_blocks(bytestring):
 
 def getKey(keyFilename):
     key = read(keyFilename, "r") #ielasa atslēgu
-    return key
+    return pad(key)
 
 def write(filename, content):
     # palīgfunkcijas lasīšanai no/ rakstīšanai failos,

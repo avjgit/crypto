@@ -132,7 +132,7 @@ def decryptFromFile(encryptedFilename, keyFilename):
     decrypted = decrypt_cbc(cyphertext, getKey(keyFilename))
     write(DECRYPTED_CBC_FILE, decrypted)
     # uzreiz izdrukā arī ekrānā ērtākai pārbaudei
-    print("Atšifrēja: " + codecs.decode(decrypted))
+    print("Atšifrēja CBC: " + codecs.decode(decrypted))
 
-encryptFromFile(INPUT_FILE, KEY_FILE)
-decryptFromFile(ENCRYPTED_CBC_FILE, KEY_FILE)
+# (INPUT_FILE, KEY_FILE)
+# decryptFromFile(ENCRYPTED_CBC_FILE, KEY_FILE)

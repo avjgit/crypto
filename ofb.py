@@ -1,8 +1,10 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
+import codecs
+from cbc import read, write, getKey # todo: move here 
 
-plainText = b"Lorem ipsum dolor sit amet, consectetur adipiscing e"
-key = b"ANAAREMEREAAAAAA"
+plainText = read("input.txt", "r")
+key = getKey("key.txt")
 
 def ofbEnc(plainText, key):
     pos = 0
@@ -10,10 +12,12 @@ def ofbEnc(plainText, key):
     iv = get_random_bytes(16)
     originalIV = iv
     cipher = AES.new(key, AES.MODE_ECB)
+
     if len(plainText) % 16 != 0:
         plainText += b"1"
     while len(plainText) % 16 != 0:
         plainText += b"0"
+
     while pos + 16 <= len(plainText):
         toXor = cipher.encrypt(iv)
         nextPos = pos + 16
@@ -23,7 +27,6 @@ def ofbEnc(plainText, key):
         pos += 16
         iv = toXor
     return (originalIV, cipherTextChunks)
-
 
 def ofbDec(cipherTextChunks, key, iv):
     plainText = b""
@@ -38,9 +41,25 @@ def ofbDec(cipherTextChunks, key, iv):
         plainText = plainText[0:-1]
     return plainText
 
-
 iv, result = ofbEnc(plainText, key)
-print(iv, result)
+
+def encryptFromFile(inputFilename, keyFilename):
+    plainText = read(inputFilename, "r")
+    key = getKey(keyFilename)
+    iv, encrypted = ofbEnc(plainText, key)
+    write("encrypted_ofb.txt", encrypted)
+    write("if_ofb.txt", iv)
+
+def decryptFromFile(encryptedFilename, keyFilename):
+    cyphertext = read(encryptedFilename, "rb")
+    key = getKey(keyFilename)
+    iv = read("if_ofb.txt", "rb")
+    decrypted = ofbDec(cyphertext, key, iv)
+    write("decrypted_ofb.txt", decrypted)
+    print("Atšifrēja OFB: " + codecs.decode(decrypted))
+
+# encryptFromFile("input.txt", "key.txt")
+# decryptFromFile("encrypted_ofb.txt", "key.txt")
 
 plain = ofbDec(result, key, iv)
-print(plain)
+print("Atšifrēja OFB: " + codecs.decode(plain))

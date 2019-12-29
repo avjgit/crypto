@@ -52,6 +52,11 @@ def writeToFile(filename, content):
     with open(filename, "wb") as outputFile: # saglabā binārajā režīmā ("wb")
         outputFile.write(content)
 
+def readFromFile(filename, mode):
+    with open(filename, mode) as inputFile:
+        content = inputFile.read()
+    return content
+
 def encrypt_cbc(msg, key):
     result = b''
 
@@ -80,16 +85,18 @@ def decrypt_cbc(ctxt, key):
         previous_ctxt_block = block
     return unpad(result)
 
-with open("key.txt", "r") as inputFile:
-    key = bytes(inputFile.read(), "utf-8")
+content = readFromFile("key.txt", "r")
+key = bytes(content, "utf-8")
 
-with open("input.txt", "r") as inputFile:
-    encoded = encrypt_cbc(bytes(inputFile.read(), "utf-8"), key)
+content = readFromFile("input.txt", "r")
+plainTextToEncode = bytes(content, "utf-8")
+
+encoded = encrypt_cbc(plainTextToEncode, key)
 
 writeToFile("encoded.txt", encoded)
 
-with open("encoded.txt", "rb") as inputFile:
-    decodedFromFile = decrypt_cbc(inputFile.read(), key)
+content = readFromFile("encoded.txt", "rb")
+decodedFromFile = decrypt_cbc(content, key)
 
 writeToFile("decoded.txt", decodedFromFile)
 

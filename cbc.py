@@ -77,14 +77,15 @@ def decrypt_cbc(ctxt, key):
     return unpad(result)
 
 with open("input.txt", "r") as inputFile:
-    content = inputFile.read()
-    encoded = encrypt_cbc(bytes(content, "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
+    encoded = encrypt_cbc(bytes(inputFile.read(), "utf-8"), bytes("YELLOW SUBMARINE", "utf-8"))
 
-with open("encoded.txt", "wb") as out: out.write(encoded)
+with open("encoded.txt", "wb") as outputFile: 
+    outputFile.write(encoded)
 
 with open("encoded.txt", "rb") as inputFile:
-    content = inputFile.read()
-    decodedFromFile = decrypt_cbc(content, bytes("YELLOW SUBMARINE", "utf-8"))
+    decodedFromFile = decrypt_cbc(inputFile.read(), bytes("YELLOW SUBMARINE", "utf-8"))
 
-with open("decoded.txt", "wb") as out: out.write(decodedFromFile)
+with open("decoded.txt", "wb") as outputFile: 
+    outputFile.write(decodedFromFile)
+
 print("Atšifrēja: " + codecs.decode(decodedFromFile))

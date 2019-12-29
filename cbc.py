@@ -74,6 +74,10 @@ def getKey(keyFilename):
     key = read(keyFilename, "r") # ielasa atslēgu
     return pad(key[:BLOCK_SIZE]) # izmanto atslēgu vinādā garuma ar bloku 
 
+def getCBCIV():
+    #initializācijas vektors, BLOCK_SIZE nulles
+    return bytearray(BLOCK_SIZE)
+
 def write(filename, content):
     # palīgfunkcijas lasīšanai no/ rakstīšanai failos,
     # lai "nepiesairņotu" algoritma kodu zemāk
@@ -92,27 +96,29 @@ def encrypt_cbc(plaintext, key):
     # šī ir bibliotēkas funkcija, kas vienkārši enkriptē vienu bloku (ECB režīmā)
     cipher = AES.new(key, AES.MODE_ECB) 
 
-    encrypted = b''
-    prev_block = bytearray(BLOCK_SIZE) #initializācijas vektors, BLOCK_SIZE nulles
-    plaintext_padded = pad(plaintext)
-    blocks = split_to_blocks(plaintext_padded) 
+    encrypted = b'' # konteineris rezultāta saglabāšanai
+    prev_block = getCBCIV() # inicializācijas vektors, kas pilda neeksistējošā iepriekšējā bloka lomu
+    plaintext_padded = pad(plaintext) # papildina tekstu līdz garumam, kas dalās ar bloka izmēru bez atlikuma
+    blocks = split_to_blocks(plaintext_padded) # sadala tekstu blokos
     for block in blocks:
-        to_encrypt = xor(block, prev_block) #xor a block with IV
-        next_block = cipher.encrypt(to_encrypt)
-        encrypted += next_block
-        prev_block = next_block
+        to_encrypt = xor(block, prev_block) # kārtējā bloka XOR ar iepriekšējo
+        next_block = cipher.encrypt(to_encrypt) # iešifrē XOR rezultātu
+
+        prev_block = next_block # iešifrēšanas rezultāts izmantošanai nākama bloka XORošanai
+        encrypted += next_block # saglabā šifrēšanas rezultātu
     return encrypted
 
 def decrypt_cbc(cyphertext, key):
-    cipher = AES.new(key, AES.MODE_ECB) 
-    result = b''
-    prev_block = bytearray(BLOCK_SIZE)
+    # daudzas rindiņas ar analogas atbilstošām rindiņām iešifrēšanā (encrypt_cbc)
+    cipher = AES.new(key, AES.MODE_ECB)
+    decrypted = b'' 
+    prev_block = getCBCIV()
     blocks = split_to_blocks(cyphertext)
     for block in blocks:
-        to_xor = cipher.decrypt(block)
-        result += xor(to_xor, prev_block)
+        to_xor = cipher.decrypt(block) # secība apgriezta iešifrēšanai - šeit sākumā bloku dešifrē ...
+        decrypted += xor(to_xor, prev_block) # ... un tad veic tā XOR ar iepriekšējo bloku
         prev_block = block
-    return unpad(result)
+    return unpad(decrypted)
 
 def encryptFromFile(inputFilename, keyFilename):
     # ielasa tekstu un atslēgu šifrēšanai, to iešifrē un ieraksta failā

@@ -10,17 +10,18 @@ def pad(data):
     # tas vēlāk noderēs papildinātu baitu noņemšanai (sk. "unpad" funkciju zemāk),
     # kas noteiks, cik baitus jānoņem, nolasot ciparu no pēdēja baita
     # https://en.wikipedia.org/wiki/Padding_(cryptography)#PKCS#5_and_PKCS#7
-    padding_len = BLOCK_SIZE - (len(data) % BLOCK_SIZE)
+    last_block_length = len(data) % BLOCK_SIZE
+    padding_length = BLOCK_SIZE - last_block_length
 
     # ja papildus baiti nav jāliek, tad jāpieliek vesels bloks :)
     # tas ir nepieciešams lai visu ziņojumu apstrāde notiktu pēc viena un tā paša algoritma
-    if padding_len == 0: padding_len = BLOCK_SIZE 
-    padding = bytes([padding_len]) * padding_len
+    if padding_length == 0: padding_length = BLOCK_SIZE 
+    padding = bytes([padding_length]) * padding_length
     return data + padding
 
 def unpad(data):
-    padding_length = data[-1]
-    return data[: -padding_length]
+    padding_lengthgth = data[-1]
+    return data[: -padding_lengthgth]
 
 def bxor(a, b): return bytes([ x^y for (x,y) in zip(a, b)])
 

@@ -70,6 +70,10 @@ def split_to_blocks(bytestring):
     # un atgriezīs masīvu ar šiem blokiem
     return [bytestring[BLOCK_SIZE*i : BLOCK_SIZE*(i+1)] for i in block_numbers]
 
+def getKey(keyFilename):
+    key = read(keyFilename, "r") #ielasa atslēgu
+    return key
+
 def write(filename, content):
     # palīgfunkcijas lasīšanai no/ rakstīšanai failos,
     # lai "nepiesairņotu" algoritma kodu zemāk
@@ -113,15 +117,13 @@ def decrypt_cbc(cyphertext, key):
 def encryptFromFile(inputFilename, keyFilename):
     # ielasa tekstu un atslēgu šifrēšanai, to iešifrē un ieraksta failā
     plainText = read(inputFilename, "r")
-    key = read(keyFilename, "r") #ielasa atslēgu
-    encrypted = encrypt_cbc(plainText, key)
+    encrypted = encrypt_cbc(plainText, getKey(keyFilename))
     write(ENCRYPTED_CBC_FILE, encrypted)
 
 def decryptFromFile(encryptedFilename, keyFilename):
     # ielasa šifrēto ziņu un atslēgu, to atšifrē un ieraksta failā
     cyphertext = read(encryptedFilename, "rb")
-    key = read(keyFilename, "r") #ielasa atslēgu
-    decrypted = decrypt_cbc(cyphertext, key)
+    decrypted = decrypt_cbc(cyphertext, getKey(keyFilename))
     write(DECRYPTED_CBC_FILE, decrypted)
     # uzreiz izdrukā arī ekrānā ērtākai pārbaudei
     print("Atšifrēja: " + codecs.decode(decrypted))

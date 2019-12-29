@@ -2,11 +2,29 @@ from Crypto.Cipher import AES
 from math import ceil
 import codecs
 
+# Kā izmantot:
+# - teksts šifrēšanai jāieraksta INPUT_FILE failā
+# - atslēga šifrēšanai jāieraksta KEY_FILE failā
+# - šā faila beigās atrodas divu funkciju izsaukumi:
+#       encryptFromFile(INPUT_FILE, KEY_FILE)
+#       decryptFromFile(ENCRYPTED_CBC_FILE, KEY_FILE)
+#   tos var laist kopā vai atsevišķi
+# --------------------------------------------------
+# Priekšnoteikums: uz datora instalēts Python 3
+# https://www.python.org/downloads
+
+# Python skriptu var laist no komandrindas vai IDE pēc savas izvēles;
+# es izmantoju Visual Studio Code
+# https://code.visualstudio.com
+
+# Pamācība kā to pielāgot izstrādei Python valodā:
+# https://code.visualstudio.com/docs/languages/python  
+
 BLOCK_SIZE = 16 #šifrēs 16 baitu blokos
 INPUT_FILE = "input.txt" # fails ar tekstu iešifrēšanai
 KEY_FILE = "key.txt" # fails ar atslēgu
-ENCRYPTED_FILE = "encrypted_cbc.txt" # fails ar iešifrētu ziņu
-DECRYPTED_FILE = "decrypted_cbc.txt" # fails ar dešifrētu ziņu
+ENCRYPTED_CBC_FILE = "encrypted_cbc.txt" # fails ar iešifrētu ziņu
+DECRYPTED_CBC_FILE = "decrypted_cbc.txt" # fails ar dešifrētu ziņu
 
 def pad(data):
     # Šī funkcija papildina tekstu, lai tas var sadalīties BLOCK_SIZE baitu blokos
@@ -93,20 +111,20 @@ def decrypt_cbc(cyphertext, key):
     return unpad(result)
 
 def encryptFromFile(inputFilename, keyFilename):
-    # ielasa tekstu šifrēšanai, to iešifrē un ieraksta failā
+    # ielasa tekstu un atslēgu šifrēšanai, to iešifrē un ieraksta failā
     plainText = read(inputFilename, "r")
     key = read(keyFilename, "r") #ielasa atslēgu
     encrypted = encrypt_cbc(plainText, key)
-    write(ENCRYPTED_FILE, encrypted)
+    write(ENCRYPTED_CBC_FILE, encrypted)
 
 def decryptFromFile(encryptedFilename, keyFilename):
-    # ielasa šifrēto ziņu, to atšifrē un ieraksta failā
+    # ielasa šifrēto ziņu un atslēgu, to atšifrē un ieraksta failā
     cyphertext = read(encryptedFilename, "rb")
     key = read(keyFilename, "r") #ielasa atslēgu
     decrypted = decrypt_cbc(cyphertext, key)
-    write(DECRYPTED_FILE, decrypted)
+    write(DECRYPTED_CBC_FILE, decrypted)
     # uzreiz izdrukā arī ekrānā ērtākai pārbaudei
     print("Atšifrēja: " + codecs.decode(decrypted))
 
 encryptFromFile(INPUT_FILE, KEY_FILE)
-decryptFromFile(ENCRYPTED_FILE, KEY_FILE)
+decryptFromFile(ENCRYPTED_CBC_FILE, KEY_FILE)

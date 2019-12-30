@@ -7,8 +7,11 @@ import codecs
 # tam nav jāpieverš uzmanība; OFB piemērs drukās "Atšifrēja OFB: "
 # bet tīrībai var to arī novērst, cbc.py pēdējas divas rindiņas aizkomentējot
 # vai pirms viņām ierakstot `if __name__ == "__main__":`
-# varēja arī vēl uzlabot, iznesot ārā kopīgas lietas
+# varēja arī vēl uzlabot, iznesot ārā kopīgas lietas,
+# un dažus mainīgos būtu pārsaucis utt.
 # tomēr laboto failu nesūtu, lai nebūtu sajaukumu
+# un šo jaunu OFB centos izveidot pēc iespējas līdzīgu CBC.py,
+# ērtākai salīdzināšanai un starpības saprašanai
 from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
 
 # Priekšnoteikumi: Python (sk. CBC.py sīkāk)
@@ -36,14 +39,14 @@ def encrypt_ofb(plainText, key):
 
 def decrypt_ofb(cyphertext, key, prev_block):
     cipher = AES.new(key, AES.MODE_ECB)
-    plainText = b''
+    decrypted = b''
     blocks = split_to_blocks(cyphertext)
     for block in blocks:
         # OFB, dešifrējot, šifrē! Tad XORo ar šifrētā teksta bloku
         to_xor = cipher.encrypt(prev_block)
-        plainText += xor(to_xor, block)
+        decrypted += xor(to_xor, block)
         prev_block = to_xor
-    decrypted = unpad(plainText)
+    decrypted = unpad(decrypted)
     write("decrypted_ofb.txt", decrypted)
     print("Atšifrēja OFB: " + codecs.decode(decrypted))
 

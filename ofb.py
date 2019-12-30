@@ -18,6 +18,13 @@ from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
 # Kā izmantot: līdzīgi kā iepriekšējā CBC.py, 
 # šajā OFB.py beigās ir divi funkciju izsaukumi - 
 # encrypt, decrypt; var lietot kopā, var atsevišķi.
+# Jāizpilda, ievietojot vienā direktorijā ar CBC.py
+# Jābūt arī input.txt un key.txt
+# Atšķirībā no CBC, šeit vienkāršoju un saīsināju kodu,
+# izņēmu, droši vien, nevajadzīgo konstantes
+# un to vietā padodot hardkodētus failu nosaukumus;
+# arī mazāk funkciju - saglabāšanu failos ieliku algoritmu funkcijās
+# Beigu rezultāts - divas funkcijas (encrypt, decrypt) un viņu izsaukumi
 
 def encrypt_ofb(plainText, key):
     # komentēšu lietas, kas atšķiras no CBC; cipher utml ir tāds pats kā CBC
@@ -49,12 +56,6 @@ def decrypt_ofb(cyphertext, key, prev_block):
     decrypted = unpad(decrypted)
     write("decrypted_ofb.txt", decrypted)
     print("Atšifrēja OFB: " + codecs.decode(decrypted))
-
-# Atšķirībā no CBC, šeit vienkāršoju un saīsināju kodu,
-# izņēmu, droši vien, nevajadzīgo konstantes
-# un to vietā padodot hardkodētus failu nosaukumus;
-# arī mazāk funkciju - saglabāšanu failos ieliku algoritmu funkcijās
-# Beigu rezultāts - divas funkcijas (encrypt, decrypt) un viņu izsaukumi
 
 encrypt_ofb(
     plainText = read("input.txt", "r"), 

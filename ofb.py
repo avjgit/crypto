@@ -13,39 +13,45 @@ from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
 
 # Priekšnoteikumi: Python (sk. CBC.py sīkāk)
 # Kā izmantot: līdzīgi kā iepriekšējā CBC.py, 
-# šajā OFB.py beigās ir divi funkciju izsaukumi - encrypt, decrypt
-# var lietot kopā, var atsevišķi.
-# Atšķirībā no CBC, šeit vienkāršoju un saīsināju kodu,
-# izņēmu, droši vien, nevajadzīgo konstantes
-# un to vietā padodot hardkodētus failu nosaukumus;
-# arī mazāk funkciju - saglabāšanu failos ieliku algoritmu funkcijās
-# Beigu rezultāts - divas funkcijas (encrypt, decrypt) un viņu izsaukumi
+# šajā OFB.py beigās ir divi funkciju izsaukumi - 
+# encrypt, decrypt; var lietot kopā, var atsevišķi.
 
 def encrypt_ofb(plainText, key):
     # komentēšu lietas, kas atšķiras no CBC; cipher utml ir tāds pats kā CBC
     cipher = AES.new(key, AES.MODE_ECB)
     encrypted = b''
-    originalIV = get_random_bytes(16)
-    iv = originalIV
-    blocks = split_to_blocks(pad(plainText))
-    for block in blocks:
-        toXor = cipher.encrypt(iv)
-        encrypted += xor(toXor, block)
-        iv = toXor
-    write("encrypted_ofb.txt", encrypted)
-    write("iv_ofb.txt", originalIV)
 
-def decrypt_ofb(cyphertext, key, iv):
-    plainText = b""
+    # atšķirībā no CBC, OFB ir gadījuma IV katrai šifrēšanai
+    prev_block = get_random_bytes(16) # "iepriekšējais bloks" ir inicializācijas vektors
+    write("iv_ofb.txt", prev_block)
+
+    blocks = split_to_blocks(pad(plainText)) # šeit "bloki" ir plain teksta gabali
+    for block in blocks:
+        # atšķirībā no CBC, kas XORo, tad iešifrē
+        # OFB sākumā iešifrē (pie tam IV, ne plaintext), tikai tad XORo
+        to_xor = cipher.encrypt(prev_block)
+        encrypted += xor(to_xor, block)
+        prev_block = to_xor
+    write("encrypted_ofb.txt", encrypted)
+
+def decrypt_ofb(cyphertext, key, prev_block):
     cipher = AES.new(key, AES.MODE_ECB)
+    plainText = b''
     blocks = split_to_blocks(cyphertext)
-    for chunk in blocks:
-        toXor = cipher.encrypt(iv)
-        plainText += xor(toXor, chunk)
-        iv = toXor
+    for block in blocks:
+        # OFB, dešifrējot, šifrē! Tad XORo ar šifrētā teksta bloku
+        to_xor = cipher.encrypt(prev_block)
+        plainText += xor(to_xor, block)
+        prev_block = to_xor
     decrypted = unpad(plainText)
     write("decrypted_ofb.txt", decrypted)
     print("Atšifrēja OFB: " + codecs.decode(decrypted))
+
+# Atšķirībā no CBC, šeit vienkāršoju un saīsināju kodu,
+# izņēmu, droši vien, nevajadzīgo konstantes
+# un to vietā padodot hardkodētus failu nosaukumus;
+# arī mazāk funkciju - saglabāšanu failos ieliku algoritmu funkcijās
+# Beigu rezultāts - divas funkcijas (encrypt, decrypt) un viņu izsaukumi
 
 encrypt_ofb(
     plainText = read("input.txt", "r"), 
@@ -54,4 +60,4 @@ encrypt_ofb(
 decrypt_ofb(
     cyphertext = read("encrypted_ofb.txt", "rb"), 
     key = getKey("key.txt"), 
-    iv = read("iv_ofb.txt", "rb"))
+    prev_block = read("iv_ofb.txt", "rb"))

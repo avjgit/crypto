@@ -4,22 +4,8 @@ from Crypto.Cipher import AES
 from cbc import read, write, getKey
 import codecs
 
-
-const_zero = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-const_rb = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x87"
-
-CONST_ZERO = 0x00000000000000000000000000000000
-CONST_RB = 0x00000000000000000000000000000087
-
-# print((CONST_ZERO).to_bytes(16, byteorder='big'))
-# print((CONST_RB).to_bytes(16, byteorder='big'))
-cipher = AES.new(getKey("key.txt"), AES.MODE_ECB) 
-L = cipher.encrypt(const_zero)
-print(L)
-
-def generate_subkeys(key):
-#    Algoritms ar komentāriem no https://www.ietf.org/rfc/rfc4493.txt 
-#    Section 2.3.  Subkey Generation Algorithm
+def generate_subkeys(key_K):
+#    Algoritms no https://www.ietf.org/rfc/rfc4493.txt Section 2.3.  Subkey Generation Algorithm
 #    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #    +                    Algorithm Generate_Subkey                      +
 #    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -41,14 +27,22 @@ def generate_subkeys(key):
 #    +   Step 4.  return K1, K2;                                         +
 #    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    const_zero = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    const_rb = b"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x87"
-    cipher = AES.new(key, AES.MODE_ECB) 
+    CONST_ZERO_RFC  = 0x00000000000000000000000000000000
+    CONST_RB_RFC    = 0x00000000000000000000000000000087
 
+    const_Zero = CONST_ZERO_RFC.to_bytes(16, byteorder='big')
+    const_Rb = CONST_RB_RFC.to_bytes(16, byteorder='big')
+    
+#    Komentāri no https://www.ietf.org/rfc/rfc4493.txt Section 2.3.  Subkey Generation Algorithm
 #    In step 1, AES-128 with key K is applied to an all-zero input block.
-    L = cipher.encrypt(const_zero)
+    cipher = AES.new(key_K, AES.MODE_ECB) 
+    L = cipher.encrypt(const_Zero) 
+
 #    In step 2, K1 is derived through the following operation:
 #       If the most significant bit of L is equal to 0, 
+    if (L[0] & 0b10000000) == 0:
+        K1 = (int.from_bytes(L,"big") << 1).to_bytes(16,"big")
+    print(K1)
 #       K1 is the left-shift of L by 1 bit.
 #       Otherwise, K1 is the exclusive-OR of 
 #       const_Rb and the left-shift of L by 1 bit.
@@ -102,4 +96,3 @@ assert get_omac() == get_mac_from_library(
         key = getKey("key.txt"))
 
 generate_subkeys(getKey("key.txt"))
-print("all is fine, all tests PASSED!") 

@@ -11,7 +11,7 @@ import codecs
 # vai pirms viņām ierakstot `if __name__ == "__main__":`
 # varēja arī vēl uzlabot, iznesot ārā kopīgas lietas,
 # un dažus mainīgos būtu pārsaucis utt.
-# tomēr laboto failu nesūtu, lai nebūtu sajaukumu
+# tomēr laboto cbc.py failu nesūtu, lai nebūtu sajaukumu starp faila versijām;
 # un šo jaunu OFB centos izveidot pēc iespējas līdzīgu CBC.py,
 # ērtākai salīdzināšanai un starpības saprašanai
 from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
@@ -21,12 +21,11 @@ from cbc import read, write, getKey, pad, unpad, split_to_blocks, xor
 # šajā OFB.py beigās ir divi funkciju izsaukumi - 
 # encrypt, decrypt; var lietot kopā, var atsevišķi.
 # Jāizpilda, ievietojot vienā direktorijā ar CBC.py
-# Jābūt arī input.txt un key.txt
+# Jābūt arī input.txt, key.txt un key_for_mac.txt
+
 # Atšķirībā no CBC, šeit vienkāršoju un saīsināju kodu,
-# izņēmu, droši vien, nevajadzīgo konstantes
-# un to vietā padodot hardkodētus failu nosaukumus;
-# arī mazāk funkciju - saglabāšanu failos ieliku algoritmu funkcijās
-# Beigu rezultāts - divas funkcijas (encrypt, decrypt) un viņu izsaukumi
+# izņēmu, droši vien, nevajadzīgas konstantes
+# un to vietā padodu hardkodētus failu nosaukumus;
 
 def encrypt_ofb(plainText, key):
     # komentēšu lietas, kas atšķiras no CBC; cipher utml ir tāds pats kā CBC
@@ -68,14 +67,13 @@ def ofbEncryptFromFile(inputFilename, keyFilename, macKeyFilename):
     mac = get_omac(macKey, plainText)
     write("mac.txt", mac)
 
-
 def ofbDecryptFromFile(encryptedFilename, initialVectorFilename, keyFilename, macKeyFilename):
     cyphertext = read(encryptedFilename, "rb")
     initialVector = read("iv_ofb.txt", "rb")
     ofbKey = getKey(keyFilename)
     decrypted = decrypt_ofb(cyphertext, ofbKey, initialVector)
     write("decrypted_ofb.txt", decrypted)
-    print("Atšifrēja: " + codecs.decode(decrypted))    
+    print("Atšifrēja OFB: " + codecs.decode(decrypted))    
 
     # Pārbauda MAC - vai saņemtais sakrīt ar ģenerēto
     macKey = getKey(macKeyFilename)

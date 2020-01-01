@@ -1,6 +1,8 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
+from omac import get_omac
 import codecs
+
 
 # izmantoju funkcijas no iepriekšēja mājas darba daļas - faila cbc.py
 # to importējot, tas izpildīsies un izdrukās "Atšifrēja: " ar CBC piemēru 
@@ -55,20 +57,34 @@ def decrypt_ofb(cyphertext, key, prev_block):
         prev_block = to_xor
     return unpad(decrypted)
 
-def ofbEncryptFromFile(inputFilename, keyFilename):
+def ofbEncryptFromFile(inputFilename, keyFilename, macKeyFilename):
     plainText = read(inputFilename, "r")
+
     ofbKey = getKey(keyFilename)
     encrypted = encrypt_ofb(plainText, ofbKey)
     write("encrypted_ofb.txt", encrypted)
 
-def ofbDecryptFromFile(encryptedFilename, keyFilename, initialVectorFilename):
+    macKey = getKey(macKeyFilename)
+    mac = get_omac(macKey, plainText)
+    write("mac.txt", mac)
+
+
+def ofbDecryptFromFile(encryptedFilename, initialVectorFilename, keyFilename, macKeyFilename):
     cyphertext = read(encryptedFilename, "rb")
-    ofbKey = getKey(keyFilename)
     initialVector = read("iv_ofb.txt", "rb")
+    ofbKey = getKey(keyFilename)
     decrypted = decrypt_ofb(cyphertext, ofbKey, initialVector)
     write("decrypted_ofb.txt", decrypted)
-    # uzreiz izdrukā arī ekrānā ērtākai pārbaudei
     print("Atšifrēja: " + codecs.decode(decrypted))    
-    
-ofbEncryptFromFile("input.txt", "key.txt")
-ofbDecryptFromFile("encrypted_ofb.txt", "key.txt", "iv_ofb.txt")
+
+    # Pārbauda MAC - vai saņemtais sakrīt ar ģenerēto
+    macKey = getKey(macKeyFilename)
+    mac_calculated = get_omac(macKey, decrypted)
+    mac_received = read("mac.txt", "rb")
+    if (mac_received == mac_calculated):
+        print("MAC ir korekts")
+    else:
+        print("MAC nav korekts")
+
+ofbEncryptFromFile("input.txt", "key.txt", "key_for_mac.txt")
+ofbDecryptFromFile("encrypted_ofb.txt", "iv_ofb.txt", "key.txt", "key_for_mac.txt")

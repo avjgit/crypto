@@ -42,7 +42,7 @@ def encrypt_ofb(plainText, key):
         to_xor = cipher.encrypt(prev_block)
         encrypted += xor(to_xor, block)
         prev_block = to_xor
-    write("encrypted_ofb.txt", encrypted)
+    return encrypted
 
 def decrypt_ofb(cyphertext, key, prev_block):
     cipher = AES.new(key, AES.MODE_ECB)
@@ -53,15 +53,22 @@ def decrypt_ofb(cyphertext, key, prev_block):
         to_xor = cipher.encrypt(prev_block)
         decrypted += xor(to_xor, block)
         prev_block = to_xor
-    decrypted = unpad(decrypted)
+    return unpad(decrypted)
+
+def ofbEncryptFromFile(inputFilename, keyFilename):
+    plainText = read(inputFilename, "r")
+    ofbKey = getKey(keyFilename)
+    encrypted = encrypt_ofb(plainText, ofbKey)
+    write("encrypted_ofb.txt", encrypted)
+
+def ofbDecryptFromFile(encryptedFilename, keyFilename, initialVectorFilename):
+    cyphertext = read(encryptedFilename, "rb")
+    ofbKey = getKey(keyFilename)
+    initialVector = read("iv_ofb.txt", "rb")
+    decrypted = decrypt_ofb(cyphertext, ofbKey, initialVector)
     write("decrypted_ofb.txt", decrypted)
-    print("Atšifrēja OFB: " + codecs.decode(decrypted))
-
-encrypt_ofb(
-    plainText = read("input.txt", "r"), 
-    key = getKey("key.txt"))
-
-decrypt_ofb(
-    cyphertext = read("encrypted_ofb.txt", "rb"), 
-    key = getKey("key.txt"), 
-    prev_block = read("iv_ofb.txt", "rb"))
+    # uzreiz izdrukā arī ekrānā ērtākai pārbaudei
+    print("Atšifrēja: " + codecs.decode(decrypted))    
+    
+ofbEncryptFromFile("input.txt", "key.txt")
+ofbDecryptFromFile("encrypted_ofb.txt", "key.txt", "iv_ofb.txt")

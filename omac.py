@@ -1,7 +1,7 @@
+import codecs
 from Crypto.Hash import CMAC
 from Crypto.Cipher import AES
 from cbc import read, write, getKey, xor, split_to_blocks
-import codecs
 from math import ceil
 
 def generate_subkeys(key_K):
@@ -40,20 +40,23 @@ def generate_subkeys(key_K):
 
 #    In step 2, K1 is derived through the following operation:
 #       If the most significant bit of L is equal to 0,
+
+    def shift_left_1_bit(x): 
+        # Ja vienkārši konvertēt int uz 16 baitiem, tad var gadīties kļūda
+        # OverflowError: int too big to convert
+        # tad jākonvertē uz 17 baitiem, bet jāņem 16, izņemot pirmo
+        return (int.from_bytes(x,"big") << 1).to_bytes(17,"big")[1:]
+
     if (L[0] & 0b10000000) == 0:
 #       K1 is the left-shift of L by 1 bit.
-        K1 = (int.from_bytes(L,"big") << 1).to_bytes(17,"big")[1:]
+        K1 = shift_left_1_bit(L)
     else:
 #       Otherwise, K1 is the exclusive-OR of
 #       const_Rb and the left-shift of L by 1 bit.
-        K1 = xor((int.from_bytes(L,"big") << 1).to_bytes(17,"big")[1:],const_Rb)
+        K1 = xor(shift_left_1_bit(L), const_Rb)
 # šeit no koda viedokļa būtu īsāk sākuma veikt nobīdi - tā vajadzīga jebkura gadījumā,
 # tad pārbaudīt L svarīgāko bitu, un tad veikt XOR ja tas bits nav 0 -
 # bet saglabāju loģiku burtiski kā RFC algoritmā
-
-# Ja vienkārši konvertēt int uz 16 baitiem, tad var gadīties kļūda
-# OverflowError: int too big to convert
-# tad jākonvertē uz 17 baitiem, bet jāņem 16, izņemot pirmo
 
 #    In step 3, K2 is derived through the following operation:
 #       If the most significant bit of K1 is equal to 0,
@@ -62,9 +65,9 @@ def generate_subkeys(key_K):
 #       const_Rb and the left-shift of K1 by 1 bit.
 
     if (K1[0] & 0b10000000) == 0:
-        K2 = (int.from_bytes(K1,"big") << 1).to_bytes(17,"big")[1:]
+        K2 = shift_left_1_bit(K1)
     else:
-        K2 = xor((int.from_bytes(K1,"big") << 1).to_bytes(17,"big")[1:],const_Rb)
+        K2 = xor(shift_left_1_bit(K1), const_Rb)
 
 # Atkal - loģika tā pati, kā K1 aprēķinā (tikai te L vietā ir K1),
 # varētu iznest atsevišķajā funkcijā, bet atstāju vienkāršībai un ērtākai sekošanai
@@ -172,3 +175,5 @@ def get_omac(key_K, message_M):
     
 # In step 7, the 128-bit MAC, T := AES-CMAC(K,M,len), is returned.
     return T
+
+print(get_omac(getKey("key.txt"), read("input.txt", "r")))

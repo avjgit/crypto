@@ -119,7 +119,7 @@ def get_omac(key_K, message_M):
     CONST_ZERO_RFC  = 0x00000000000000000000000000000000
     const_Zero = CONST_ZERO_RFC.to_bytes(16, byteorder='big')
     const_Bsize = 16
-    K1, K2 = self.generate_subkey(key_K)
+    K1, K2 = generate_subkeys(key_K)
 
 # In step 2, the number of blocks, n, is calculated.  The number of
 # blocks is the smallest integer value greater than or equal to the
@@ -171,19 +171,4 @@ def get_omac(key_K, message_M):
     T = cipher.encrypt(Y)
     
 # In step 7, the 128-bit MAC, T := AES-CMAC(K,M,len), is returned.
-    return T;
-
-    # return "333beaa54a0dd3ab411a6352dd949601"
-
-def get_mac_from_library(plainText, key):
-    lib_cmac = CMAC.new(key, ciphermod=AES)
-    lib_cmac.update(plainText)
-    return lib_cmac.hexdigest()
-
-# pārbaudīt MAC, salīdzinot pašrēķināto ar ārējas bibliotēkas rēķināto
-# ja tests neveiksmīgs, tad tālāk izpilde neiet
-assert get_omac() == get_mac_from_library(
-        plainText = read("input.txt", "r"),
-        key = getKey("key.txt"))
-
-print(generate_subkeys(getKey("key.txt")))
+    return T

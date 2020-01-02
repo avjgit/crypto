@@ -7,6 +7,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 import datetime
+import json
 
 # Generate our key
 key = rsa.generate_private_key(
@@ -22,12 +23,16 @@ with open("key.pem", "wb") as f:
         encryption_algorithm=serialization.BestAvailableEncryption(b"passphrase"),
     ))
 
+# R: the information about the issuer and the subject of the certificate 
+# should be read from a text file
+with open('issuer_name.json') as f: issuer_deserialized = json.load(f)
+
 subject = issuer = x509.Name([ # subject un issuer ir vienādi
-    x509.NameAttribute(NameOID.COUNTRY_NAME, u"LV"),
-    x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Riga"),
-    x509.NameAttribute(NameOID.LOCALITY_NAME, u"Riga"),
-    x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"aj05044"),
-    x509.NameAttribute(NameOID.COMMON_NAME, u"aj05044.com"),
+    x509.NameAttribute(NameOID.COUNTRY_NAME, issuer_deserialized["COUNTRY_NAME"]),
+    x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, issuer_deserialized["STATE_OR_PROVINCE_NAME"]),
+    x509.NameAttribute(NameOID.LOCALITY_NAME, issuer_deserialized["LOCALITY_NAME"]),
+    x509.NameAttribute(NameOID.ORGANIZATION_NAME, issuer_deserialized["ORGANIZATION_NAME"]),
+    x509.NameAttribute(NameOID.COMMON_NAME, issuer_deserialized["COMMON_NAME"]),
 ])
 
 cert = x509.CertificateBuilder().subject_name(

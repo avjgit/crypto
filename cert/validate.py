@@ -19,6 +19,8 @@ subject = cert.subject.get_attributes_for_oid(NameOID.ORGANIZATION_NAME)[0].valu
 validity = "valīds" if issuer == subject else "nevalīds"
 print(f'Sertifkāta izdevējs {issuer} sertificē {subject}. Self-signed sertifikāts ir {validity}.')
 
+# R: ...and whether a digital signature of the issuer matches the subject’s public key
+
 # issuer_public_key = load_pem_public_key(pem_issuer_public_key, default_backend())
 # cert_to_check = x509.load_pem_x509_certificate(pem_data_to_check, default_backend())
 # issuer_public_key.verify(

@@ -23,11 +23,11 @@ with open("key.pem", "wb") as f:
     ))
 
 subject = issuer = x509.Name([ # subject un issuer ir vienādi
-    x509.NameAttribute(NameOID.COUNTRY_NAME, u"US"),
-    x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"California"),
-    x509.NameAttribute(NameOID.LOCALITY_NAME, u"San Francisco"),
-    x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"My Company"),
-    x509.NameAttribute(NameOID.COMMON_NAME, u"mysite.com"),
+    x509.NameAttribute(NameOID.COUNTRY_NAME, u"LV"),
+    x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Riga"),
+    x509.NameAttribute(NameOID.LOCALITY_NAME, u"Riga"),
+    x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"aj05044"),
+    x509.NameAttribute(NameOID.COMMON_NAME, u"aj05044.com"),
 ])
 
 cert = x509.CertificateBuilder().subject_name(

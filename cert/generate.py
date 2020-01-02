@@ -15,8 +15,9 @@ key = rsa.generate_private_key(
     key_size=2048,
     backend=default_backend()
 )
+
 # Write our key to disk for safe keeping
-with open("key.pem", "wb") as f:
+with open("keys.pem", "wb") as f:
     f.write(key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.TraditionalOpenSSL,

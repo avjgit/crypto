@@ -23,7 +23,7 @@ def encrypt(
     with open(plainttextFilename, "r") as f:
         plaintext = f.read()
 
-    print(f"----- Iešifrē {plaintext}")
+    print(f"----- Iešifrē tekstu: {plaintext}")
     ciphertext = public_key.encrypt(
         bytes(plaintext, "utf-8"),
         padding.OAEP(
@@ -69,7 +69,7 @@ def decrypt(
         )
     )
 
-    print(f"----- Atšifrēja: {decrypted}")
+    print(f"----- Atšifrēja tekstu: {decrypted}")
     print(f"----- Ieraksta {outputFilename} failā")
     with open(outputFilename, "wb") as outputFile:
             outputFile.write(decrypted)

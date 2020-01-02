@@ -2,6 +2,7 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
 
 # R: Write a program that verifies your certificate 
 # (since it is a root certificate, it is sufficient to check 
@@ -19,13 +20,27 @@ issuerOk = issuer == subject
 # Sertifikāta pārbaude - pārbauda parakstu
 # -----------------------------------------------------------------------------
 signatureOk = True
+with open("keys.pem", "rb") as key_file:
+    private_key = serialization.load_pem_private_key(
+        key_file.read(),
+        password=bytes("passphrase", "utf-8"),
+        backend=default_backend()
+    )
 try:
-    print(cert.public_key().verify(
+    # divi varianti - izmantojot public key no privātās atslēgas faila 
+    # vai nu no paša sertifikāta
+    cert.public_key().verify(
         cert.signature,
         cert.tbs_certificate_bytes,
         padding.PKCS1v15(),
         cert.signature_hash_algorithm,
-    ))
+    )
+    private_key.public_key().verify(
+        cert.signature,
+        cert.tbs_certificate_bytes,
+        padding.PKCS1v15(),
+        cert.signature_hash_algorithm,
+    )
 except:
     signatureOk = False
 

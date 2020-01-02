@@ -9,19 +9,17 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 import datetime
 import json
 
-# Generate our key
 key = rsa.generate_private_key(
     public_exponent=65537,
     key_size=2048,
     backend=default_backend()
 )
 
-# Write our key to disk for safe keeping
 with open("keys.pem", "wb") as f:
     f.write(key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.TraditionalOpenSSL,
-        encryption_algorithm=serialization.BestAvailableEncryption(b"passphrase"),
+        encryption_algorithm=serialization.BestAvailableEncryption(b"pilnigi slepeni"),
     ))
 
 # R: the information about the issuer and the subject of the certificate 
@@ -51,8 +49,7 @@ cert = x509.CertificateBuilder().subject_name(
 ).add_extension(
     x509.SubjectAlternativeName([x509.DNSName(u"localhost")]),
     critical=False,
-# Sign our certificate with our private key
 ).sign(key, hashes.SHA256(), default_backend())
-# Write our certificate out to disk.
+
 with open("certificate.pem", "wb") as f:
     f.write(cert.public_bytes(serialization.Encoding.PEM))

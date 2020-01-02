@@ -84,7 +84,7 @@ encrypt(
 decrypt(
     ciphertextFilename  = "encrypted.txt",
     keyFilename         = "keys.pem",
-    keyFilePassword     = "passphrase",
+    keyFilePassword     = "pilnigi slepeni",
     outputFilename      = "decrypted.txt"
 )
 

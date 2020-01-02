@@ -23,7 +23,7 @@ signatureOk = True
 with open("keys.pem", "rb") as key_file:
     private_key = serialization.load_pem_private_key(
         key_file.read(),
-        password=bytes("passphrase", "utf-8"),
+        password=bytes("pilnigi slepeni", "utf-8"),
         backend=default_backend()
     )
 try:
@@ -45,4 +45,4 @@ except:
     signatureOk = False
 
 validity = "valīds" if issuerOk and signatureOk else "nevalīds"
-print(f'Sertifkāta izdevējs {issuer} sertificē {subject}. Self-signed sertifikāts ir {validity}.')
+print(f'Sertifikāta izdevējs {issuer} sertificē {subject}. Self-signed sertifikāts ir {validity}.')

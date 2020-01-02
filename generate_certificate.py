@@ -29,10 +29,10 @@ def create_self_signed_cert():
     cert.set_pubkey(k)
     cert.sign(k, 'sha1')
 
-    with open(CERT_FILE, "wt") as f:
+    with open(CERT_FILE, "wb") as f:
         f.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
 
-    with open(KEY_FILE, "wt") as f:
+    with open(KEY_FILE, "wb") as f:
         f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
 
 create_self_signed_cert()
